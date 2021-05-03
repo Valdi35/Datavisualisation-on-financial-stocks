@@ -1,0 +1,95 @@
+.header {
+    background-color: #222222;
+    height: 200px;
+    padding: 10px 1 1 1;
+}
+
+.header-emoji {
+    font-size: 48px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.header-title {
+    color: #FFFFFF;
+    font-size: 35px;
+    font-weight: bold;
+    text-align: center;
+    margin: 0 auto;
+}
+
+.header-description {
+    color: #CFCFCF;
+    margin: 4px auto;
+    text-align: center;
+    max-width: 384px;
+}
+
+.card_container{
+    border-radius: 5px;
+    background-color: white;
+    margin : 10px;
+    padding: 15px;
+    position: relative;
+    box-shadow: 2px 2px 2px #222222;
+}
+
+body{
+    background-color: #222222;
+}
+
+.create_container{
+    border-radius: 5px;
+    background-color: whitesmoke;
+    margin: 18px;
+    padding : 15px;
+    position: relative;
+    box-shadow: 2px 2px 2px whitesmoke;
+}
+
+.dcc_compon{
+    margin : 0;
+    padding: 10px;
+    width: calc(100%-40px);
+}
+
+.fix_label{
+    font-size: 15px;
+    margin: 0;
+    padding: 10px;
+    padding-bottom: 0px;
+    margin-bottom: 0px;
+    width: calc(100%-40px);
+
+}
+
+/* width */
+::-webkit-scrollbar {
+    width: 10px !important;
+    display: block !important;
+}
+
+/* Track */
+::-webkit-scrollbar-track{
+    background: #222222 !important;
+    border-radius: 10px !important;
+    display: block !important;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb{
+    background: white;
+}
+
+.Select-control, .Select-menu-outer, .Select-multi-value-wrapper, .select-up, .is-open .Select-control{
+    background-color: #222222;
+    color: white;
+}
+
+.Select-control{
+    border: 0.5px solid yellow;
+}
+
+.has-value.Select--single>.Select-control .Select-value .Select-value-label, .has-value.is-pseudo-focused.has-value.Select--single>.Select-control{
+    color:white;
+}
