@@ -27,7 +27,7 @@
 
 .card_container{
     border-radius: 5px;
-    background-color: white;
+    background-color: whitesmoke;
     margin : 10px;
     padding: 15px;
     position: relative;
@@ -35,22 +35,45 @@
 }
 
 body{
-    background-color: #222222;
+    background-color:#222222;
 }
 
 .create_container{
     border-radius: 5px;
     background-color: whitesmoke;
-    margin: 18px;
+    margin: 15px;
     padding : 15px;
     position: relative;
     box-shadow: 2px 2px 2px whitesmoke;
 }
 
+.create_container1{
+    border-radius: 5px;
+    background-color: whitesmoke;
+    margin: 5px;
+    padding : 5px;
+    position: right;
+    box-shadow: 0px 0px 0px whitesmoke;
+    text-align: center;
+    color: #CFCFCF;
+}
+
 .dcc_compon{
     margin : 0;
+    background-color: whitesmoke;
     padding: 10px;
     width: calc(100%-40px);
+}
+
+.dcc_compon2{
+    margin : 0 auto;
+    background-color: whitesmoke;
+    padding: 5px;
+    position:relative;
+    font-size: 10px;
+    text-align: center;
+    width: 100px;
+    height:70px;
 }
 
 .fix_label{
@@ -78,12 +101,12 @@ body{
 
 /* Handle */
 ::-webkit-scrollbar-thumb{
-    background: white;
+    background: whitesmoke;
 }
 
 .Select-control, .Select-menu-outer, .Select-multi-value-wrapper, .select-up, .is-open .Select-control{
-    background-color: #222222;
-    color: white;
+    background-color:black;
+    color: whitesmoke;
 }
 
 .Select-control{
@@ -91,5 +114,5 @@ body{
 }
 
 .has-value.Select--single>.Select-control .Select-value .Select-value-label, .has-value.is-pseudo-focused.has-value.Select--single>.Select-control{
-    color:white;
+    color:whitesmoke;
 }
