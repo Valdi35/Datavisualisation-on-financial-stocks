@@ -46,6 +46,12 @@ daily_vol = LogReturns.std() * np.sqrt(252)
 #Ratio de sharpe journalier
 daily_sharpe = daily_mean / daily_vol
 
+#Max rendement
+Max = LogReturns.max()
+
+#Plus mauvais rendement
+Min = LogReturns.min()
+
 #Drawdown sur les prix
 maxDD = ffn.core.calc_max_drawdown(data)
 
@@ -69,9 +75,19 @@ def find_beta(x,y):
         b = round(beta,2)
         return b
 
-    
-
 total_return = rendement_total(data)
+
+#######################################
+#Best company with high return and low risk
+######################################
+daily_sharpe.dropna(inplace=True)
+best = daily_sharpe.sort_values(ascending=False).head(10)
+best = pd.DataFrame(best)
+df_compare = best.merge(fichier, left_on=best.index, right_on=fichier["ticker"])
+df_compare.drop("key_0",axis=1, inplace=True)
+top_ten = px.scatter(df_compare,x="Industry", y="ticker",
+                size=df_compare[0],color="Industry",hover_name="Nom",
+                title="Dix meilleurs ratio Rendement/risque par secteur",template='plotly')
 
 #NOUVEAU DATASET AVEC NOS INDICATEURS
 dataset = pd.DataFrame({'Rendements_moyen':daily_mean,
@@ -118,7 +134,7 @@ principalDf = principalDf.join(pd.DataFrame({'Industry':sector1}))
 pca = px.scatter(principalDf, x=0,
                  y=1, color=principalDf['Industry'],
                  title="Analyse en composante principale - repartition par type d'industrie",
-                 template='plotly')
+                 template='plotly',hover_name=principalDf['Stock'])
 
 
 #Clustering sur donnees financieres : Apprentissage non supervise
@@ -222,15 +238,27 @@ app.layout = html.Div(
                         style={'margin-top':'20px'}),
                         dcc.Graph(id='returns', config={'displayModeBar':False}, className='dcc_compon',
                         style={'margin-top':'20px'}),
+                        dcc.Graph(id='returns_max', config={'displayModeBar':False}, className='dcc_compon',
+                        style={'margin-top':'20px'}),
+                        dcc.Graph(id='returns_min', config={'displayModeBar':False}, className='dcc_compon',
+                        style={'margin-top':'20px'}),
                         
                 ], className='create_container three columns'),
                 html.Div([
                         dcc.Graph(id='reg',figure={},config={'displayModeBar':False})
-                ],className='create_container eight and a half columns'),
-                 html.Div([
-                        dcc.Graph(id='PCA',figure=pca)
-                ],className='create container1 eleven columns'),
-
+                ],className='create_container eight columns'),
+                html.Div([
+                        html.Div([
+                                html.H3('Analyse en composante principale',style={'textAlign':'center',
+                                                'color':'whitesmoke'}),
+                                dcc.Graph(id='PCA',figure=pca)
+                        ],className='seven columns'),
+                        html.Div([
+                                html.H3('Top performance companies',style={'textAlign':'center',
+                                                'color':'whitesmoke'}),
+                                dcc.Graph(id='Top',figure=top_ten)
+                        ],className='five columns'),
+                ],className='row'),
         ], className = 'row flex display'),
         ]
 )
@@ -330,6 +358,8 @@ def update_return(t_ticker):
                                 'x':0.5,
                                 'xanchor':'center',
                                 'yanchor':'top'},
+                        paper_bgcolor='whitesmoke',
+                        plot_bgcolor='whitesmoke',
                         height=50,
                 )
         }
@@ -359,9 +389,64 @@ def update_return(t_ticker):
                                 'x':0.5,
                                 'xanchor':'center',
                                 'yanchor':'top'},
+                        paper_bgcolor='whitesmoke',
+                        plot_bgcolor='whitesmoke',
                         height=50,
                 )
         }
+
+
+@app.callback(Output('returns_max','figure'),
+                [Input('t_ticker','value')])
+
+def update_return(t_ticker):
+        max_rendement = round(Max[t_ticker],2)
+        return {
+                'data': [go.Indicator(
+                        mode='number+delta',
+                        value = max_rendement,
+                        number={'valueformat': '.g',
+                                'font' : {'size':15}},
+                        domain={'y': [0,1], 'x': [0,1]}
+                )],
+                'layout': go.Layout(
+                        title = {'text': 'Best return',
+                                'y':1,
+                                'x':0.5,
+                                'xanchor':'center',
+                                'yanchor':'top'},
+                        paper_bgcolor='whitesmoke',
+                        plot_bgcolor='whitesmoke',
+                        height=50,
+                )
+        }
+
+
+@app.callback(Output('returns_min','figure'),
+                [Input('t_ticker','value')])
+
+def update_return(t_ticker):
+        min_rendement = round(Min[t_ticker],2)
+        return {
+                'data': [go.Indicator(
+                        mode='number+delta',
+                        value = min_rendement,
+                        number={'valueformat': '.g',
+                                'font' : {'size':15}},
+                        domain={'y': [0,1], 'x': [0,1]}
+                )],
+                'layout': go.Layout(
+                        title = {'text': 'Worst return',
+                                'y':1,
+                                'x':0.5,
+                                'xanchor':'center',
+                                'yanchor':'top'},
+                        paper_bgcolor='whitesmoke',
+                        plot_bgcolor='whitesmoke',
+                        height=50,
+                )
+        }
+
 
 
 @app.callback(Output('reg','figure'),
