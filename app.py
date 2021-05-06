@@ -14,6 +14,8 @@ from datetime import date
 import plotly.express as px
 #Financial functions for python
 import ffn
+import plotly.io as pio
+pio.templates
 
 #Tableau de bord
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
@@ -55,8 +57,21 @@ MA250 = data.rolling(window=250).mean()
 def rendement_total(prices):
     return (prices.iloc[-1]/prices.iloc[1]) -1
 
-total_return = rendement_total(data)
+#Fonctio pour trouver le beta
+def find_beta(x,y):
+        x = x.astype(np.float64)
+        y = y.astype(np.float64)
+        from scipy import stats
+        #Regression lineaire
+        beta, alpha, r_value, p_value, std_error = stats.linregress(x.iloc[2:].values,y.iloc[3:].values)
+    
+        #Recuperer  le beta
+        b = round(beta,2)
+        return b
 
+    
+
+total_return = rendement_total(data)
 
 #NOUVEAU DATASET AVEC NOS INDICATEURS
 dataset = pd.DataFrame({'Rendements_moyen':daily_mean,
@@ -100,9 +115,11 @@ for i in range(len(principalDf['Stock'])):
 
 principalDf = principalDf.join(pd.DataFrame({'Industry':sector1}))
 
-#fig = px.scatter(principalDf, x=0,
-                 #y=1, color=principalDf['Industry'])
-#fig.show()
+pca = px.scatter(principalDf, x=0,
+                 y=1, color=principalDf['Industry'],
+                 title="Analyse en composante principale - repartition par type d'industrie",
+                 template='plotly')
+
 
 #Clustering sur donnees financieres : Apprentissage non supervise
 
@@ -156,7 +173,7 @@ app.layout = html.Div(
                                 ),
                                 html.P(
                                         children="Utilisation des methodes de machines learning"
-                                        " pour analyser les characteristiques des actifs financiers",
+                                        " pour analyser les caracteristiques des actifs financiers",
                                         className="header-description",
                                 ),
                         ],
@@ -167,63 +184,29 @@ app.layout = html.Div(
                                 html.H6(children='Daily mean',
                                         style={'textAlign':'center',
                                                 'color':'black'}),
-                                html.P(f"{str(round(daily_mean['AAPL']*100,2)) + ' %':}",
-                                        style={'textAlign' :'center',
-                                                'color':'green',
-                                                'fontSize':30}),
-                                html.P('Rendement annuel 2020 : ' + f"{str(round(np.prod(LogReturns['AAPL'] + 1) ** (252/LogReturns['AAPL'].shape[0]) - 1,2)*100) + ' %':}",
-                                        style={'textAlign' : 'center',
-                                                'color' : 'green',
-                                                'fontSize':15,
-                                                'margin-top':'-18px'})
-
+                                dcc.Graph(id='dly_mean',config={'displayModeBar':False},className='dcc_compon2'),
                         ], className='card_container three columns'),
 
                         html.Div([
                                 html.H6(children='Daily volatility',
                                         style={'textAlign':'center',
                                                 'color':'black'}),
-                                html.P(f"{str(round(daily_vol['AAPL']*100,2)) + ' %':}",
-                                        style={'textAlign' :'center',
-                                                'color':'red',
-                                                'fontSize':30}),
-                                html.P('Volatilite annuel 2020 : ' + f"{str(round(daily_vol['AAPL']*np.sqrt(250))) + ' %':}",
-                                        style={'textAlign' : 'center',
-                                                'color' : 'red',
-                                                'fontSize':15,
-                                                'margin-top':'-18px'}),
+                                dcc.Graph(id='dly_vol',config={'displayModeBar':False},className='dcc_compon2'),
                         ], className = 'card_container three columns'),
 
                         html.Div([
                                 html.H6(children='Ratio de Sharpe',
                                         style={'textAlign':'center',
                                                 'color':'black'}),
-                                html.P(f"{str(round(daily_sharpe['AAPL'],2)):}",
-                                        style={'textAlign' :'center',
-                                                'color':'orange',
-                                                'fontSize':30}),
-                                html.P('Sharpe ratio annuel 2020 : ' + f"{str(round(daily_sharpe['AAPL']*12,2)):}",
-                                        style={'textAlign' : 'center',
-                                                'color' : 'orange',
-                                                'fontSize':15,
-                                                'margin-top':'-18px'}),
+                                dcc.Graph(id='dly_sharpe',config={'displayModeBar':False},className='dcc_compon2'),
                         ], className = 'card_container three columns'),
 
                         html.Div([
                                 html.H6(children='Max Draw Down',
                                         style={'textAlign':'center',
                                                 'color':'black'}),
-                                html.P(f"{str(round(maxDD['AAPL'],2)):}",
-                                        style={'textAlign' :'center',
-                                                'color':'#e55467',
-                                                'fontSize':30}),
-                                html.P('Over the last three years, since 2018',
-                                        style={'textAlign' : 'center',
-                                                'color' : '#e55467',
-                                                'fontSize':15,
-                                                'margin-top':'-18px'}),
+                                dcc.Graph(id='maxdd',config={'displayModeBar':False},className='dcc_compon2'),
                         ], className = 'card_container three columns'),
-
                 ], className='row flex display'),
         html.Div([
                 html.Div([
@@ -235,22 +218,93 @@ app.layout = html.Div(
                                         placeholder='Select a ticker',
                                         options=[{'label': value, 'value' : value}
                                         for value in (LogReturns.columns)],className='dcc.compon'),
-                        html.P('Mis a jour le: ' + ' ' + str(LogReturns.index[-1]),
-                                className='fix_label', style={'text-align':'center', 'color':'green'}),
                         dcc.Graph(id='price', config={'displayModeBar':False}, className='dcc_compon',
                         style={'margin-top':'20px'}),
                         dcc.Graph(id='returns', config={'displayModeBar':False}, className='dcc_compon',
                         style={'margin-top':'20px'}),
-
+                        
                 ], className='create_container three columns'),
                 html.Div([
                         dcc.Graph(id='reg',figure={},config={'displayModeBar':False})
-                ],className='create_container eight and a half columns')
+                ],className='create_container eight and a half columns'),
+                 html.Div([
+                        dcc.Graph(id='PCA',figure=pca)
+                ],className='create container1 eleven columns'),
 
-        ], className = 'row flex display')
+        ], className = 'row flex display'),
         ]
 )
 
+@app.callback(Output('dly_mean','figure'),
+                [Input('t_ticker','value')])
+def update_dly_mean(t_ticker):
+        dly = round(daily_mean[t_ticker],2)
+        return {
+                'data' : [go.Indicator(
+                        mode='number+delta',
+                        value = dly,
+                        number= {'font':{'size':30}},
+                        domain={'y': [0,1], 'x': [0,1]}
+                )],
+                'layout' : go.Layout(
+                        font=dict(color='green'),
+                        paper_bgcolor='whitesmoke',
+                        plot_bgcolor='whitesmoke'
+                )
+        }
+
+@app.callback(Output('dly_vol','figure'),
+                [Input('t_ticker','value')])
+def update_dly_mean(t_ticker):
+        dly = round(daily_vol[t_ticker],2)
+        return {
+                'data' : [go.Indicator(
+                        mode='number+delta',
+                        value = dly,
+                        number= {'font':{'size':30}},
+                        domain={'y': [0,1], 'x': [0,1]}
+                )],
+                'layout' : go.Layout(
+                        font=dict(color='red'),
+                        paper_bgcolor='whitesmoke',
+                        plot_bgcolor='whitesmoke'
+                )
+        }
+@app.callback(Output('dly_sharpe','figure'),
+                [Input('t_ticker','value')])
+def update_dly_mean(t_ticker):
+        dly = round(daily_sharpe[t_ticker],2)
+        return {
+                'data' : [go.Indicator(
+                        mode='number+delta',
+                        value = dly,
+                        number= {'font':{'size':30}},
+                        domain={'y': [0,1], 'x': [0,1]}
+                )],
+                'layout' : go.Layout(
+                        font=dict(color='orange'),
+                        paper_bgcolor='whitesmoke',
+                        plot_bgcolor='whitesmoke'
+                )
+        }
+
+@app.callback(Output('maxdd','figure'),
+                [Input('t_ticker','value')])
+def update_dly_mean(t_ticker):
+        dly = round(maxDD[t_ticker],2)
+        return {
+                'data' : [go.Indicator(
+                        mode='number+delta',
+                        value = dly,
+                        number= {'font':{'size':30}},
+                        domain={'y': [0,1], 'x': [0,1]}
+                )],
+                'layout' : go.Layout(
+                        font=dict(color='#e55467'),
+                        paper_bgcolor='whitesmoke',
+                        plot_bgcolor='whitesmoke'
+                )
+        }
 @app.callback(Output('price','figure'),
                 [Input('t_ticker','value')])
 
@@ -312,8 +366,11 @@ def update_return(t_ticker):
 
 @app.callback(Output('reg','figure'),
                 [Input('t_ticker','value')])
+                
 def update_reg(t_ticker): 
-        fig = px.line(x=data.index,y=data[t_ticker])
+        fig = px.line(x=data.index,y=data[t_ticker],template='plotly',
+        title="Evolution de l'action " + str(fichier[fichier["ticker"]==t_ticker]["Nom"]))
+
         fig.add_traces(go.Scatter(
                 name="30 Moving average",
                 mode="lines",
@@ -326,7 +383,31 @@ def update_reg(t_ticker):
                 x=data.index,
                 y=MA250[t_ticker]
         ))
+        fig.update_layout(legend_title_text = "Indicateurs",
+                shapes = [dict(
+                x0='2020-03-30', x1='2020-03-30', y0=0, y1=1, xref='x', yref='paper',
+                line_width=2)],
+                annotations=[dict(
+                        x='2020-03-30', y=0.05, xref='x', yref='paper',
+                        showarrow=False, xanchor='left', text='COVID-19 Lokcdown')])
+        fig.update_xaxes(title_text="Date")
+        fig.update_yaxes(title_text="Prix")
+        
+        fig.update_xaxes(
+        rangeslider_visible=False,
+        rangeselector=dict(
+                buttons=list([
+                dict(count=1, label="1m", step="month", stepmode="backward"),
+                dict(count=6, label="6m", step="month", stepmode="backward"),
+                dict(count=1, label="YTD", step="year", stepmode="todate"),
+                dict(count=1, label="1y", step="year", stepmode="backward"),
+                dict(step="all")
+                ])
+        )
+        )
         return fig
+
+
 
 
 if __name__== '__main__':
