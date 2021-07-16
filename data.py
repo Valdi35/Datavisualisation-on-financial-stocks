@@ -51,8 +51,7 @@ data.to_csv('Donnees.csv',header=True, index=True)
 indice.to_csv('indice.csv',header=True, index=True)
 fichier.to_csv('Info.csv',header=True, index=True)
 
-import requests
-
+#API
 demo= '8c2b607f6ba5ce388df2a8d15b59237b'
 
 Financial_ratio = {}
